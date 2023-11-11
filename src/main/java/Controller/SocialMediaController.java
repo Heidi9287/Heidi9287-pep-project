@@ -28,11 +28,17 @@ public Javalin startAPI() {
     private void registerAccountsHandler(Context context) throws JsonProcessingException{
         ObjectMapper mapper=new ObjectMapper();
         Account account=mapper.readValue(context.body(),Account.class);
+        if (isUsernameDuplicate(account.getUsername())) {
+            context.status(400); }
         Account addedAccount=accountService.addAccount(account);
         if(addedAccount==null){context.status(404);}
-        if(addedAccount.username==""){context.status(400);}
-        else{   context.json(mapper.writeValueAsString(addedAccount));}
+        if(addedAccount.username==""||addedAccount.password.length()<4){context.status(400);}
+        else {   context.json(mapper.writeValueAsString(addedAccount));}
 
     }
 
-}
+
+    private boolean isUsernameDuplicate(String username) {
+        System.out.println(username);
+        return accountService.isUsernameDuplicate(username);
+    }}
