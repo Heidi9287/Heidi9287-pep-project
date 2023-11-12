@@ -1,5 +1,4 @@
 package Service;
-
 import Model.Account;
 import DAO.SocialMediaDao;
 import java.util.List;
