@@ -1,5 +1,6 @@
 package Controller;
 
+import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import Model.Account;
@@ -27,6 +28,7 @@ public class SocialMediaController {
 
     public Javalin startAPI() {
         Javalin app = Javalin.create();
+        app.get("/messages", this::getAllMessagesHandler);
         app.post("/register", this::registerAccountsHandler);
         app.post("/messages", this::createMessageHandler);
         return app;
@@ -68,6 +70,9 @@ public class SocialMediaController {
         } else {
             context.json(mapper.writeValueAsString(addedMessage));
         }
-
     }
-}
+    private void getAllMessagesHandler(Context ctx) {
+        List <Message> messages = messageService.getAllMessages();
+        ctx.json(messages);
+    }
+}   
