@@ -1,5 +1,6 @@
 package Controller;
 
+import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +10,7 @@ import Service.AccountService;
 import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your
@@ -31,6 +33,7 @@ public class SocialMediaController {
         app.get("/messages", this::getAllMessagesHandler);
         app.post("/register", this::registerAccountsHandler);
         app.post("/messages", this::createMessageHandler);
+        app.patch("/messages/{message_id}", this::updateMessageHandler);
         return app;
     }
 
@@ -53,7 +56,6 @@ public class SocialMediaController {
     }
 
     private boolean isUsernameDuplicate(String username) {
-        System.out.println(username);
         return accountService.isUsernameDuplicate(username);
     }
 
@@ -63,16 +65,30 @@ public class SocialMediaController {
         Message addedMessage = messageService.createMessage(message);
         if (addedMessage == null) {
             context.status(400);
-        }
-        else if (addedMessage.message_text.isEmpty()
+        } else if (addedMessage.message_text.isEmpty()
                 || addedMessage.message_text.length() > 255) {
             context.status(400);
         } else {
             context.json(mapper.writeValueAsString(addedMessage));
         }
     }
+
     private void getAllMessagesHandler(Context ctx) {
-        List <Message> messages = messageService.getAllMessages();
+        List<Message> messages = messageService.getAllMessages();
         ctx.json(messages);
     }
-}   
+
+    private void updateMessageHandler(Context ctx) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(ctx.body(), Message.class);
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        Message updatedMessage = messageService.updateMessage(message_id, message);
+        if (updatedMessage == null || updatedMessage.message_text.isEmpty()) {
+            ctx.status(400);
+        } else if (updatedMessage.message_text.length() > 255) {
+            ctx.status(400);
+        } else {
+            ctx.json(mapper.writeValueAsString(updatedMessage));
+        }
+    }
+}
