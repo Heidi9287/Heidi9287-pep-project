@@ -26,6 +26,9 @@ public class MessageService {
     public List<Message> getAllMessages() {
         return socialMediaDao.getAllMessages();
     }
+    public Message getMessageById(int message_id) {
+        return socialMediaDao.getMessageById(message_id);
+    }
 
     public Message updateMessage(int message_id, Message message) {
         Message currentMessage = socialMediaDao.getMessageById(message_id);
