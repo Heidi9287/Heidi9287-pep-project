@@ -27,6 +27,17 @@ public class AccountService {
         }
         return false; // No duplicate username found
     }
+public Boolean userCanLogin(Account account){
+    if (account == null) {
+        return false;
+    }
+Account accountFound=socialMediaDao.userLogin(account);
+if (accountFound != null) {
+    return account.getPassword().equals(accountFound.getPassword());
+}
+else
+return false;
 
+}
 
 }

@@ -1,6 +1,4 @@
 package Controller;
-
-import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +8,6 @@ import Service.AccountService;
 import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your
@@ -34,6 +31,7 @@ public class SocialMediaController {
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
         app.post("/register", this::registerAccountsHandler);
         app.post("/messages", this::createMessageHandler);
+        app.post("/login", this::loginHandler);
         app.patch("/messages/{message_id}", this::updateMessageHandler);
         return app;
     }
@@ -54,6 +52,23 @@ public class SocialMediaController {
             context.json(mapper.writeValueAsString(addedAccount));
         }
 
+    }
+
+    private void loginHandler(Context ctx) throws JsonProcessingException {
+        try{     
+        ObjectMapper mapper = new ObjectMapper();
+        Account account = mapper.readValue(ctx.body(), Account.class);
+        if (accountService.userCanLogin(account)) {
+            ctx.status(200);
+        } else {
+            ctx.status(401);
+        }}
+        catch (JsonProcessingException e) {
+            // Print or log the stack trace for detailed error information
+            e.printStackTrace();
+    
+            ctx.status(500).result("Internal server error: Error processing JSON payload");
+        }
     }
 
     private boolean isUsernameDuplicate(String username) {
@@ -82,8 +97,10 @@ public class SocialMediaController {
     private void getMessageByIdHandler(Context ctx) throws JsonProcessingException {
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
         Message message = messageService.getMessageById(message_id);
-        if(message==null){ctx.status(200);}
-   else ctx.json(message);
+        if (message == null) {
+            ctx.status(200);
+        } else
+            ctx.json(message);
 
     }
 
@@ -92,9 +109,9 @@ public class SocialMediaController {
         Message message = mapper.readValue(ctx.body(), Message.class);
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
         Message updatedMessage = messageService.updateMessage(message_id, message);
-        if (updatedMessage == null || updatedMessage.message_text.isEmpty()) {
+        if (updatedMessage == null) {
             ctx.status(400);
-        } else if (updatedMessage.message_text.length() > 255) {
+        } else if (updatedMessage.message_text.isEmpty() || updatedMessage.message_text.length() > 255) {
             ctx.status(400);
         } else {
             ctx.json(mapper.writeValueAsString(updatedMessage));

@@ -95,48 +95,70 @@ public class SocialMediaDao {
         }
         return messages;
     }
-public Message getMessageById(int message_id){
-    Connection connection = ConnectionUtil.getConnection();
-    try {
-              // Write SQL logic here
-              String sql = "SELECT * FROM message WHERE message_id=?";
 
-              PreparedStatement preparedStatement = connection.prepareStatement(sql);
-  
-              // write preparedStatement's setString and setInt methods here.
-              preparedStatement.setInt(1, message_id);
-  
-              ResultSet rs = preparedStatement.executeQuery();
-              while (rs.next()) {
-                Message message = new Message (rs.getInt("message_id"),
-                rs.getInt("posted_by"),
-                rs.getString("message_text"),
+    public Message getMessageById(int message_id) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
+            // Write SQL logic here
+            String sql = "SELECT * FROM message WHERE message_id=?";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+            // write preparedStatement's setString and setInt methods here.
+            preparedStatement.setInt(1, message_id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Message message = new Message(rs.getInt("message_id"),
+                        rs.getInt("posted_by"),
+                        rs.getString("message_text"),
                         rs.getLong("time_posted_epoch"));
-                  return message;
-              }
-   
-    } catch (
-        SQLException e) {
+                return message;
+            }
+
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return null;
 
-}
-   public Message updateMessage(int message_id, Message message){
-    Connection connection = ConnectionUtil.getConnection();
-    try {
-        String sql = "UPDATE message SET message_text = ? WHERE message_id = ?;";
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setString(1, message.getMessage_text());
-        preparedStatement.setInt(2, message_id);
-        preparedStatement.executeUpdate();
- 
-    } catch (
-
-    SQLException e) {
-        System.out.println(e.getMessage());
     }
 
-    return null;
-   }
+    public Message updateMessage(int message_id, Message message) {
+        Connection connection = ConnectionUtil.getConnection();
+        try {
+            String sql = "UPDATE message SET message_text = ? WHERE message_id = ?;";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, message.getMessage_text());
+            preparedStatement.setInt(2, message_id);
+            preparedStatement.executeUpdate();
+
+        } catch (
+
+        SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return null;
+    }
+
+    public Account userLogin(Account account) {
+        Connection connection = ConnectionUtil.getConnection();
+        try{
+            String sql ="SELECT * FROM account WHERE username=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, account.getUsername());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                Account retrievedAccount = new Account();
+                retrievedAccount.setUsername(resultSet.getString("username"));
+                retrievedAccount.setPassword(resultSet.getString("password"));
+              
+                return retrievedAccount;
+            } else {
+                System.out.println("User not found");
+            }
+        }
+        catch(    SQLException e){      System.out.println(e.getMessage());}
+        return null;
+    }
 }
