@@ -122,6 +122,30 @@ public class SocialMediaDao {
         return null;
 
     }
+    public List<Message> getAllMessageByUser(int posted_by) {
+        Connection connection = ConnectionUtil.getConnection();
+        List<Message> messages = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM message WHERE posted_by=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, posted_by);
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                Message message = new Message(rs.getInt("message_id"),
+                        rs.getInt("posted_by"),
+                        rs.getString("message_text"),
+                        rs.getLong("time_posted_epoch"));
+                 messages.add(message);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+        return messages;
+  
+
+    }
 
     public Message updateMessage(int message_id, Message message) {
         Connection connection = ConnectionUtil.getConnection();
@@ -140,6 +164,22 @@ public class SocialMediaDao {
 
         return null;
     }
+    public Message deleteMessage(int message_id) {
+        Connection connection = ConnectionUtil.getConnection();
+        Message deletedMessage = getMessageById(message_id);
+        if(deletedMessage!=null)
+        try {
+            String sql = "DELETE FROM message WHERE message_id = ?;";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, message_id);
+            preparedStatement.executeUpdate();
+            return deletedMessage;
+        } catch (
+        SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
 
     public Account userLogin(Account account) {
         Connection connection = ConnectionUtil.getConnection();
@@ -152,7 +192,7 @@ public class SocialMediaDao {
                 Account retrievedAccount = new Account();
                 retrievedAccount.setUsername(resultSet.getString("username"));
                 retrievedAccount.setPassword(resultSet.getString("password"));
-              
+                retrievedAccount.setAccount_id(resultSet.getInt("account_id"));
                 return retrievedAccount;
             } else {
                 System.out.println("User not found");

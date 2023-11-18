@@ -26,20 +26,29 @@ public class MessageService {
     public List<Message> getAllMessages() {
         return socialMediaDao.getAllMessages();
     }
+
+    public List<Message> getAllMessagesByUser(int posted_by) {
+        List<Message> messages = socialMediaDao.getAllMessageByUser(posted_by);
+        return messages;
+    }
+
     public Message getMessageById(int message_id) {
         return socialMediaDao.getMessageById(message_id);
     }
 
     public Message updateMessage(int message_id, Message message) {
         Message currentMessage = socialMediaDao.getMessageById(message_id);
-        System.out.println("Updating message with ID: " + message_id);
-        System.out.println("Original Message: " + socialMediaDao.getMessageById(message_id));
-        System.out.println("Updated Message: " + message);
-    
+
         if (currentMessage != null) {
             socialMediaDao.updateMessage(message_id, message);
             return socialMediaDao.getMessageById(message_id);
         } else
             return null;
+    }
+    public Message deleteMessage(int message_id){
+        Message toBeDeleted=socialMediaDao.getMessageById(message_id);
+        if(toBeDeleted!=null){
+        return toBeDeleted;
+        }else{return null;}
     }
 }

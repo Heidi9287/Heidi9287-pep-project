@@ -28,7 +28,9 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.get("/messages", this::getAllMessagesHandler);
+        app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler);
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
         app.post("/register", this::registerAccountsHandler);
         app.post("/messages", this::createMessageHandler);
         app.post("/login", this::loginHandler);
@@ -60,13 +62,12 @@ public class SocialMediaController {
         Account account = mapper.readValue(ctx.body(), Account.class);
         if (accountService.userCanLogin(account)) {
             ctx.status(200);
+            ctx.json(account);
         } else {
             ctx.status(401);
         }}
         catch (JsonProcessingException e) {
-            // Print or log the stack trace for detailed error information
             e.printStackTrace();
-    
             ctx.status(500).result("Internal server error: Error processing JSON payload");
         }
     }
@@ -103,7 +104,13 @@ public class SocialMediaController {
             ctx.json(message);
 
     }
+private void getAllMessagesByUserHandler(Context ctx)throws JsonProcessingException{
+int posted_by=Integer.parseInt(ctx.pathParam("account_id"));
+List<Message> messages = messageService.getAllMessagesByUser(posted_by);
+if(messages==null){ ctx.status(200);}
+else{ctx.status(200);ctx.json(messages);}
 
+}
     private void updateMessageHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
@@ -116,5 +123,13 @@ public class SocialMediaController {
         } else {
             ctx.json(mapper.writeValueAsString(updatedMessage));
         }
+    }
+
+    private void deleteMessageByIdHandler(Context ctx)throws JsonProcessingException{  
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        Message deletedMessage = messageService.deleteMessage(message_id);
+        if(deletedMessage!=null){ctx.status(200);ctx.json(deletedMessage);}
+        else
+        ctx.status(200);
     }
 }
