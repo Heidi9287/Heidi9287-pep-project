@@ -41,7 +41,8 @@ public class SocialMediaController {
     private void registerAccountsHandler(Context context) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
-        if (isUsernameDuplicate(account.getUsername())) {
+        Boolean isUsernameDuplicate=accountService.isUsernameDuplicate(account.username);
+        if (isUsernameDuplicate) {
             context.status(400);
         }
         Account addedAccount = accountService.addAccount(account);
@@ -72,9 +73,7 @@ public class SocialMediaController {
         }
     }
 
-    private boolean isUsernameDuplicate(String username) {
-        return accountService.isUsernameDuplicate(username);
-    }
+  
 
     private void createMessageHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
