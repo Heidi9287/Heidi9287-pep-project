@@ -155,14 +155,15 @@ public class SocialMediaDao {
             preparedStatement.setString(1, message.getMessage_text());
             preparedStatement.setInt(2, message_id);
             preparedStatement.executeUpdate();
-
+            return message;
         } catch (
 
         SQLException e) {
             System.out.println(e.getMessage());
+            return null;
         }
 
-        return null;
+  
     }
     public Message deleteMessage(int message_id) {
         Connection connection = ConnectionUtil.getConnection();
@@ -192,7 +193,7 @@ public class SocialMediaDao {
                 Account retrievedAccount = new Account();
                 retrievedAccount.setUsername(resultSet.getString("username"));
                 retrievedAccount.setPassword(resultSet.getString("password"));
-                retrievedAccount.setAccount_id(resultSet.getInt("account_id"));
+             //   retrievedAccount.setAccount_id(resultSet.getInt("account_id"));
                 return retrievedAccount;
             } else {
                 System.out.println("User not found");

@@ -38,8 +38,10 @@ public class MessageService {
 
     public Message updateMessage(int message_id, Message message) {
         Message currentMessage = socialMediaDao.getMessageById(message_id);
+        System.out.println("current"+currentMessage);
+        System.out.println("update"+ message);
 
-        if (currentMessage != null) {
+        if (currentMessage != null&&message.message_text.length()<255) {
             socialMediaDao.updateMessage(message_id, message);
             return socialMediaDao.getMessageById(message_id);
         } else

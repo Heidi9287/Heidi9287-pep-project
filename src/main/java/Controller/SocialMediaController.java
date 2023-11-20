@@ -125,16 +125,17 @@ else{ctx.status(200);ctx.json(messages);}
         Message message = mapper.readValue(ctx.body(), Message.class);
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
         Message updatedMessage = messageService.updateMessage(message_id, message);
-        System.out.println(updatedMessage.message_text.length());
-        //.length()is returning 14 when the the message is >255 char;
+  
         if (updatedMessage == null) {
             ctx.status(400);
         
-        } else if (updatedMessage.message_text.isEmpty() || updatedMessage.message_text.length() > 255) {
+        } 
+        else if (updatedMessage.message_text.isEmpty()) {
             ctx.status(400);
         } else {
             ctx.json(mapper.writeValueAsString(updatedMessage));
         }
+  
     }
 
     private void deleteMessageByIdHandler(Context ctx)throws JsonProcessingException{  
