@@ -193,7 +193,7 @@ public class SocialMediaDao {
                 Account retrievedAccount = new Account();
                 retrievedAccount.setUsername(resultSet.getString("username"));
                 retrievedAccount.setPassword(resultSet.getString("password"));
-             //   retrievedAccount.setAccount_id(resultSet.getInt("account_id"));
+               retrievedAccount.setAccount_id(resultSet.getInt("account_id"));
                 return retrievedAccount;
             } else {
                 System.out.println("User not found");

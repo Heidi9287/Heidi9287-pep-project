@@ -50,12 +50,13 @@ public class SocialMediaController {
         //INSERT INTO account (username, password) VALUES(?,?) [23505-214]
         if (isUsernameDuplicate) {
             context.status(400);
+            return;
         }
+        System.out.println("still working");
         Account addedAccount = accountService.addAccount(account);
         if (addedAccount == null) {
             context.status(404);
         }
-        //.length()works here but not when message is over 255
         if (addedAccount.username == "" || addedAccount.password.length() < 4) {
             context.status(400);
         } else {
