@@ -42,6 +42,12 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
         Boolean isUsernameDuplicate=accountService.isUsernameDuplicate(account.username);
+        System.out.println(isUsernameDuplicate);
+        //the above is returning the desired outcome but still receiving 500
+        //no idea what the below error is
+        //Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_E ON PUBLIC.ACCOUNT(USERNAME NULLS FIRST) VALUES
+        //( /* 2 */ 'user' )"; SQL statement:
+        //INSERT INTO account (username, password) VALUES(?,?) [23505-214]
         if (isUsernameDuplicate) {
             context.status(400);
         }
@@ -49,6 +55,7 @@ public class SocialMediaController {
         if (addedAccount == null) {
             context.status(404);
         }
+        //.length()works here but not when message is over 255
         if (addedAccount.username == "" || addedAccount.password.length() < 4) {
             context.status(400);
         } else {
@@ -61,6 +68,7 @@ public class SocialMediaController {
         try{     
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
+        //account returning a different account_id than the test expected
         if (accountService.userCanLogin(account)) {
             ctx.status(200);
             ctx.json(account);
@@ -84,7 +92,9 @@ public class SocialMediaController {
         } else if (addedMessage.message_text.isEmpty()
                 || addedMessage.message_text.length() > 255) {
             ctx.status(400);
-        } else {
+        }
+        //.length()>255 work here but not when updating messages
+        else {
             ctx.json(mapper.writeValueAsString(addedMessage));
         }
     }
@@ -115,8 +125,11 @@ else{ctx.status(200);ctx.json(messages);}
         Message message = mapper.readValue(ctx.body(), Message.class);
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
         Message updatedMessage = messageService.updateMessage(message_id, message);
+        System.out.println(updatedMessage.message_text.length());
+        //.length()is returning 14 when the the message is >255 char;
         if (updatedMessage == null) {
             ctx.status(400);
+        
         } else if (updatedMessage.message_text.isEmpty() || updatedMessage.message_text.length() > 255) {
             ctx.status(400);
         } else {
