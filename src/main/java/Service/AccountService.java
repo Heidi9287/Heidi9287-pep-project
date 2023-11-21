@@ -5,6 +5,7 @@ import java.util.List;
 
 public class AccountService {
     SocialMediaDao socialMediaDao;
+    public Object LoginResult;
 
     public AccountService() {
         socialMediaDao = new SocialMediaDao();
@@ -27,17 +28,36 @@ public class AccountService {
         }
         return false; // No duplicate username found
     }
-public Boolean userCanLogin(Account account){
-    if (account == null) {
-        return false;
+    public class LoginResult {
+        private final boolean success;
+        private final Account account;
+    
+        public LoginResult(boolean success, Account account) {
+            this.success = success;
+            this.account = account;
+        }
+    
+        public boolean isSuccess() {
+            return success;
+        }
+    
+        public Account getAccount() {
+            return account;
+        }
     }
-Account accountFound=socialMediaDao.userLogin(account);
-if (accountFound != null) {
-    return account.getPassword().equals(accountFound.getPassword());
-}
-else
-return false;
-
-}
+    
+    public LoginResult userCanLogin(Account account) {
+        if (account == null) {
+            return new LoginResult(false, null);
+        }
+    
+        Account accountFound = socialMediaDao.userLogin(account);
+    
+        if (accountFound != null && account.getPassword().equals(accountFound.getPassword())) {
+            return new LoginResult(true, accountFound);
+        } else {
+            return new LoginResult(false, null);
+        }
+    }
 
 }

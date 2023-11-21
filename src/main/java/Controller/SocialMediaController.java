@@ -6,6 +6,7 @@ import Model.Account;
 import Model.Message;
 import Service.AccountService;
 import Service.MessageService;
+import Service.AccountService.LoginResult;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -42,17 +43,11 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
         Boolean isUsernameDuplicate=accountService.isUsernameDuplicate(account.username);
-        System.out.println(isUsernameDuplicate);
-        //the above is returning the desired outcome but still receiving 500
-        //no idea what the below error is
-        //Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_E ON PUBLIC.ACCOUNT(USERNAME NULLS FIRST) VALUES
-        //( /* 2 */ 'user' )"; SQL statement:
-        //INSERT INTO account (username, password) VALUES(?,?) [23505-214]
         if (isUsernameDuplicate) {
             context.status(400);
             return;
         }
-        System.out.println("still working");
+    
         Account addedAccount = accountService.addAccount(account);
         if (addedAccount == null) {
             context.status(404);
@@ -69,10 +64,12 @@ public class SocialMediaController {
         try{     
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
+        LoginResult loginResult = accountService.userCanLogin(account);
         //account returning a different account_id than the test expected
-        if (accountService.userCanLogin(account)) {
+        if (loginResult.isSuccess()) {           
+             Account loggedInAccount = loginResult.getAccount();
             ctx.status(200);
-            ctx.json(account);
+            ctx.json(loggedInAccount);
         } else {
             ctx.status(401);
         }}
